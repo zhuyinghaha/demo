@@ -1,12 +1,13 @@
-<?php 
+<?php
 
 echo 111;
 
 $a = 1111;
 
-if($a){
+if ($a) {
     echo 2222;
+    if (true) {
+        echo 1212;
+    }
+    
 }
-
-
-?>
