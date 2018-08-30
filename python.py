@@ -1,6 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+
+#第1行和第2行是标准注释，第1行注释可以让这个hello.py文件直接在Unix/Linux/Mac上运行，第2行注释表示.py文件本身使用标准UTF-8编码
+
+
 # print(1+2+3);
 
 # name = input();
@@ -380,5 +384,761 @@
 
 
 ## 列表生成式
+# print([x * x for x in range(1,11)])
+# print([m + n for m in 'ABC' for n in 'XY'])
+
+# import os # 导入os模块，模块的概念后面讲到
+# print([d for d in os.listdir('.')]) # os.listdir可以列出文件和目录
+
+
+###  练习
+#如果list中既包含字符串，又包含整数，由于非字符串类型没有lower()方法，所以列表生成式会报错
+
+#请修改列表生成式，通过添加if语句保证列表生成式能正确地执行
+# L1 = ['Hello', 'World', 18, 'Apple', None]
+# L2 = [i.lower() for i in L1 if isinstance (i,str)]
+# # 测试:
+# print(L2)
+# if L2 == ['hello', 'world', 'apple']:
+#     print('测试通过!')
+# else:
+#     print('测试失败!')
+
+
+## 生成器
+# g = (x * x for x in range(10))
+# # print(g)
+# # print(next(g))
+# for i in g:
+#     print(i)
+
+#比如，著名的斐波拉契数列（Fibonacci），除第一个和第二个数外，任意一个数都可由前两个数相加得到：
+#1, 1, 2, 3, 5, 8, 13, 21, 34, ...
+#斐波拉契数列用列表生成式写不出来，但是，用函数把它打印出来却很容易
+# def fib(max):
+#     n, a, b = 0, 0, 1
+#     while n < max:
+#         print(b)
+#         a, b = b, a + b
+#         n = n + 1
+#     return 'done'
+# fib(6)
+
+# 仔细观察，可以看出，fib函数实际上是定义了斐波拉契数列的推算规则，可以从第一个元素开始，推算出后续任意的元素，这种逻辑其实非常类似generator。
+# 也就是说，上面的函数和generator仅一步之遥。要把fib函数变成generator，只需要把print(b)改为yield b就可以了
+# def fib(max):
+#     n, a, b = 0, 0, 1
+#     while n < max:
+#         yield b
+#         a, b = b, a + b
+#         n = n + 1
+#     return 'done'
+# f = fib(6)
+# print(f)
+
+# 举个简单的例子，定义一个generator，依次返回数字1，3，5：
+# def odd():
+#     print('step 1')
+#     yield 1
+#     print('step 2')
+#     yield(3)
+#     print('step 3')
+#     yield(5)
+
+# o = odd()
+# print(next(o))
+# print(next(o))
+# print(next(o))
+# print(next(o))
+
+
+# g = fib(6)
+# while True:
+#     try:
+#         x = next(g)
+#         print('g:', x)
+#     except StopIteration as e:
+#         print('Generator return value:', e.value)
+#         break
+
+
+### 练习
+# 杨辉三角定义如下：
+#           1
+#          / \
+#         1   1
+#        / \ / \
+#       1   2   1
+#      / \ / \ / \
+#     1   3   3   1
+#    / \ / \ / \ / \
+#   1   4   6   4   1
+#  / \ / \ / \ / \ / \
+# 1   5   10  10  5   1
+# 把每一行看做一个list，试写一个generator，不断输出下一行的list：
+
+# def triangles():
+#     L = [1]
+#     while True:
+        # yield L
+        # #不能用append的原因是用append,地址没有变，在results.append(t)后，再执行L.append(0)，results内的t也会变
+        # #L.append(0)
+        # L = L + [0]
+        # L = [(L[i-1]+L[i]) for i in range(len(L))]
+
+# def triangles():
+#     cur = [1]
+#     n = 0
+#     while True:
+#         yield cur
+#         temp = [1]
+#         for i in range(n):
+#             x = cur[i] + cur[i + 1]
+#             temp.append(x)
+#         temp.append(1)
+#         cur = temp
+#         n = n + 1
+# 期待输出:
+# [1]
+# [1, 1]
+# [1, 2, 1]
+# [1, 3, 3, 1]
+# [1, 4, 6, 4, 1]
+# [1, 5, 10, 10, 5, 1]
+# [1, 6, 15, 20, 15, 6, 1]
+# [1, 7, 21, 35, 35, 21, 7, 1]
+# [1, 8, 28, 56, 70, 56, 28, 8, 1]
+# [1, 9, 36, 84, 126, 126, 84, 36, 9, 1]
+# n = 0
+# results = []
+# for t in triangles():
+#     print(t)
+#     results.append(t)
+#     n = n + 1
+#     if n == 10:
+#         break
+# if results == [
+#     [1],
+#     [1, 1],
+#     [1, 2, 1],
+#     [1, 3, 3, 1],
+#     [1, 4, 6, 4, 1],
+#     [1, 5, 10, 10, 5, 1],
+#     [1, 6, 15, 20, 15, 6, 1],
+#     [1, 7, 21, 35, 35, 21, 7, 1],
+#     [1, 8, 28, 56, 70, 56, 28, 8, 1],
+#     [1, 9, 36, 84, 126, 126, 84, 36, 9, 1]
+# ]:
+#     print('测试通过!')
+# else:
+#     print('测试失败!')
+
+
+
+
+###  iterable  迭代器
+# from collections import Iterable
+# print(isinstance([],Iterable))
+
+
+#函数式编程
+# def add(x, y, f):
+#     return f(x) + f(y)
+
+# print(add(-5, 6, abs))
+
+
+# print(sum([1,2,3,4,5]))
+
+# from functools import reduce
+# def fn(x, y):
+#     return x * 10 + y
+
+# print(reduce(fn, [1, 3, 5, 7, 9]))
+
+
+#考虑到字符串str也是一个序列，对上面的例子稍加改动，配合map()，我们就可以写出把str转换为int的函数
+# from functools import reduce
+# def fn(x, y):
+#     return x * 10 + y
+
+# def char2num(s):
+#     digits = {'0': 0, '1': 1, '2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9}
+#     return digits[s]
+
+# # print(list(map(char2num, '13579')))    ##[1, 3, 5, 7, 9]
+# print(reduce(fn, map(char2num, '13579')))
+
+# #整理成一个str2int的函数
+# from functools import reduce
+
+# DIGITS = {'0': 0, '1': 1, '2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9}
+
+# def str2int(s):
+#     def fn(x, y):
+#         return x * 10 + y
+#     def char2num(s):
+#         return DIGITS[s]
+#     return reduce(fn, map(char2num, s))
+
+# #还可以用lambda函数进一步简化成
+# from functools import reduce
+
+# DIGITS = {'0': 0, '1': 1, '2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9}
+
+# def char2num(s):
+#     return DIGITS[s]
+
+# def str2int(s):
+#     return reduce(lambda x, y: x * 10 + y, map(char2num, s))
+
+
+
+#练习
+#1. 利用map()函数，把用户输入的不规范的英文名字，变为首字母大写，其他小写的规范名字。
+#输入：['adam', 'LISA', 'barT']，输出：['Adam', 'Lisa', 'Bart']：
+# def normalize(name):
+#     q = name[0].upper()
+#     w = name[1:].lower()
+#     return q + w
+   
+# # 测试:
+# L1 = ['adam', 'LISA', 'barT']
+# L2 = list(map(normalize, L1))
+# print(L2)
+
+
+#2. Python提供的sum()函数可以接受一个list并求和，请编写一个prod()函数，可以接受一个list并利用reduce()求积
+# from functools import reduce
+
+# def prod(L):
+#     def fn(x, y):
+#         return x * y
+#     return reduce(fn, L)
+
+    
+# # 测试：
+# print('3 * 5 * 7 * 9 =', prod([3, 5, 7, 9]))
+# if prod([3, 5, 7, 9]) == 945:
+#     print('测试成功!')
+# else:
+#     print('测试失败!')
+
+
+#3. 利用map和reduce编写一个str2float函数，把字符串'123.456'转换成浮点数123.456：
+# from functools import reduce
+# def str2float(s):
+#     def fn(x,y):
+#         return x * 10 + y
+#     def char2num(s):
+#         DIGITS = {'0': 0, '1': 1, '2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9}
+#         return DIGITS[s]
+#     temp = s.split('.')    
+#     sleft = temp[0]
+#     sright = temp[1]
+#     return reduce(fn,map(char2num,sleft)) + reduce(fn,map(char2num,sright)) / (10**s.index('.'))
+
+# #练习：
+# print('str2float(\'123.456\') =', str2float('123.456'))
+# if abs(str2float('123.456') - 123.456) < 0.00001:
+#     print('测试成功!')
+# else:
+#     print('测试失败!')
+
+
+
+###  filter()
+# def is_odd(n):
+#     return n % 2 == 1
+
+# print(list(filter(is_odd, [1, 2, 3, 4, 5, 6])))
+
+# def not_empty(s):
+#     return s and s.strip()
+# print(list(filter(not_empty, ['A', '', 'B', None, 'C', '  '])))
+
+
+# 用filter求素数
+# 计算素数的一个方法是埃氏筛法
+# 用Python来实现这个算法，可以先构造一个从3开始的奇数序列：
+
+# def _odd_iter():
+#     n = 1
+#     while True:
+#         n = n + 2
+#         yield n
+# # 注意这是一个生成器，并且是一个无限序列。
+
+# # 然后定义一个筛选函数：
+# def _not_divisible(n):
+#     return lambda x: x % n > 0
+
+# # 最后，定义一个生成器，不断返回下一个素数：
+# def primes():
+#     yield 2
+#     it = _odd_iter() # 初始序列
+#     while True:
+#         n = next(it) # 返回序列的第一个数
+#         yield n
+#         it = filter(_not_divisible(n), it) # 构造新序列
+
+# # 打印1000以内的素数:
+# for n in primes():
+#     if n < 20:
+#         print(n)
+#     else:
+#         break
+
+#练习
+#回数是指从左向右读和从右向左读都是一样的数，例如12321，909。请利用filter()筛选出回数：
+# def is_palindrome(n):
+#     sn = str(n)
+#     lens = len(sn)
+#     for i,value in sn:
+#         if sn[i] != sn[lens-1]:
+#             return false
+#             break
+#     return true
+
+# def is_palindrome(n):
+#     s=str(n)
+#     return s==s[::-1]
+
+
+
+# # 测试:
+# output = filter(is_palindrome, range(1, 1000))
+# print('1~1000:', list(output))
+# if list(filter(is_palindrome, range(1, 200))) == [1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 22, 33, 44, 55, 66, 77, 88, 99, 101, 111, 121, 131, 141, 151, 161, 171, 181, 191]:
+#     print('测试成功!')
+# else:
+#     print('测试失败!')
+
+
+#练习
+#假设我们用一组tuple表示学生名字和成绩：
+# L = [('Bob', 75), ('Adam', 92), ('Bart', 66), ('Lisa', 88)]
+# #请用sorted()对上述列表分别按名字排序：
+# L = [('Bob', 75), ('Adam', 92), ('Bart', 66), ('Lisa', 88)]
+
+# def by_name(t):
+#     return t[0].lower()
+
+# def by_score(s):
+#     return s[-1]
+
+# L2 = sorted(L, key=by_name)
+# print(L2)
+# L3 = sorted(L, key=by_score)
+# print(L3) 
+
+
+
+## 闭包
+#练习
+#利用闭包返回一个计数器函数，每次调用它返回递增整数：
+# def createCounter():
+#     count = 0
+#     def counter():
+#         nonlocal count
+#         count = count + 1
+#         return count
+#     return counter
+
+# # 测试:
+# counterA = createCounter()
+# print(counterA(), counterA(), counterA(), counterA(), counterA()) # 1 2 3 4 5
+# counterB = createCounter()
+# if [counterB(), counterB(), counterB(), counterB()] == [1, 2, 3, 4]:
+#     print('测试通过!')
+# else:
+#     print('测试失败!')
+
+
+#匿名函数
+#练习
+#请用匿名函数改造下面的代码：
+# def is_odd(n):
+#     return n % 2 == 1
+
+# L = list(filter(lambda x: x % 2 , range(1, 20)))
+# print(L)
+
+#装饰器
+#练习
+#请设计一个decorator，它可作用于任何函数上，并打印该函数的执行时间：
+# import time, functools
+# def metric(fn):
+#     @functools.wraps(fn)
+#     def wrapper(*args, **kw):
+#         start = time.time()
+#         stop = time.time()-start
+#         print('%s executed in %s ms' % (fn.__name__, stop))
+#         return fn(*args, **kw)
+#     return wrapper
+   
+
+# # 测试
+# @metric
+# def fast(x, y):
+#     time.sleep(0.0012)
+#     return x + y;
+
+# @metric
+# def slow(x, y, z):
+#     time.sleep(0.1234)
+#     return x * y * z;
+
+# f = fast(11, 22)
+# s = slow(11, 22, 33)
+# if f != 33:
+#     print('测试失败!')
+# elif s != 7986:
+#     print('测试失败!')
+
+
+###########  模块   
+#我们以内建的sys模块为例，编写一个hello的模块
+# #!/usr/bin/env python3
+# # -*- coding: utf-8 -*-     #第1行和第2行是标准注释，第1行注释可以让这个hello.py文件直接在Unix/Linux/Mac上运行，第2行注释表示.py文件本身使用标准UTF-8编码
+
+# ' a test module '    #是一个字符串，表示模块的文档注释，任何模块代码的第一个字符串都被视为模块的文档注释
+
+# __author__ = 'Michael Liao'  #使用__author__变量把作者写进去，这样当你公开源代码后别人就可以瞻仰你的大名
+
+# #以上就是Python模块的标准文件模板，当然也可以全部删掉不写，但是，按标准办事肯定没错
+
+# import sys
+
+# def test():
+#     args = sys.argv
+#     if len(args)==1:
+#         print('Hello, world!')
+#     elif len(args)==2:
+#         print('Hello, %s!' % args[1])
+#     else:
+#         print('Too many arguments!')
+
+# if __name__=='__main__':
+#     test()
+
+
+
+######  面向对象
+# class Student(object):
+#     def __init__(self, name, score):
+#         self.name = name
+#         self.score = score
+
+#     def get_grade(self):
+#         if self.score >= 90:
+#             return 'A'
+#         elif self.score >= 60:
+#             return 'B'
+#         else:
+#             return 'C'
+
+# lisa = Student('Lisa', 99)
+# bart = Student('Bart', 59)
+# print(lisa.name, lisa.get_grade())
+# print(bart.name, bart.get_grade())
+
+
+
+#练习
+# #请把下面的Student对象的gender字段对外隐藏起来，用get_gender()和set_gender()代替，并检查参数有效性：
+# class Student(object):
+#     def __init__(self, name, gender):
+#         self.name = name
+#         self.__gender = gender
+
+#     def get_gender(self):
+#         return self.__gender
+
+#     def set_gender(self, gender):
+#         self.__gender = gender
+
+
+# # 测试:
+# bart = Student('Bart', 'male')
+# if bart.get_gender() != 'male':
+#     print('测试失败!')
+# else:
+#     bart.set_gender('female')
+#     if bart.get_gender() != 'female':
+#         print('测试失败!')
+#     else:
+#         print('测试成功!')
+
+
+
+### 实例属性和类属性
+#练习
+#为了统计学生人数，可以给Student类增加一个类属性，每创建一个实例，该属性自动增加：
+# class Student(object):
+#     count = 0
+
+#     def __init__(self, name):
+#         self.name = name
+#         Student.count += 1
+
+# # 测试:
+# if Student.count != 0:
+#     print('测试失败11!')
+# else:
+#     bart = Student('Bart')
+#     if Student.count != 1:
+#         print('测试失败!')
+#     else:
+#         lisa = Student('Bart')
+#         if Student.count != 2:
+#             print('测试失败!')
+#         else:
+#             print('Students:', Student.count)
+#             print('测试通过!')
+
+
+#面向对象高级编程
+# class Student(object):
+#     pass
+
+
+#尝试给实例绑定一个属性
+#方法1
+# s = Student()
+# #s.name = 'xiaoying'
+# #print(s.name)
+# #方法2
+# def set_age(self, age): # 定义一个函数作为实例方法
+#         self.age = age
+
+# from types import MethodType
+# s.set_age = MethodType(set_age, s) # 给实例绑定一个方法
+# s.set_age(25) # 调用实例方法
+# print(s.age) # 测试结果
+
+
+
+###  __slots__ 
+# class Student(object):
+#     __slots__ = ('name', 'age') # 用tuple定义允许绑定的属性名称
+
+# s = Student() # 创建新的实例
+# s.name = 'Michael' # 绑定属性'name'
+# s.age = 25 # 绑定属性'age'
+# #s.score = 99 # 绑定属性'score'
+
+# class GraduatesStudent(Student):
+#         pass
+# g = GraduatesStudent()
+# g.name = '111'
+# g.score = 20
+# print(g.score)
+
+
+### 练习
+# class Student(object):
+#     pass
+
+# def set_age(self, age):
+#     self.age = age
+
+# from types import MethodType
+# #给实例增加属性
+# s1 = Student()
+# s1.set_age = MethodType(set_age, s1)
+# s1.set_age(11)
+# print(s1.age) #11
+
+# #给类增加属性一
+# Student.set_age = MethodType(set_age, Student)
+# Student.set_age(22)
+# print(Student.age) #22
+# s2 = Student()
+# s3 = Student()
+# s2.set_age(33)
+# s3.set_age(44)
+# print(s2.age, s3.age) #44 #44 s3覆盖s2
+
+# #给类增加属性二
+# Student.set_age = set_age
+# Student.set_age(Student, 55)
+# print(Student.age) #55
+# s4 = Student()
+# s5 = Student()
+# s4.set_age(66)
+# s5.set_age(77)
+# print(s4.age, s5.age) #66 #77 互不干扰
+
+
+### 使用@property
+# class Student(object):
+#     def get_score(self):
+#          return self._score
+
+#     def set_score(self, value):
+#         if not isinstance(value, int):
+#             raise ValueError('score must be an integer!')
+#         if value < 0 or value > 100:
+#             raise ValueError('score must between 0 ~ 100!')
+#         self._score = value
+
+# s = Student()
+# s.set_score(60) # ok!
+# s.get_score()
+# print(s.get_score())
+# #s.set_score(9999)
+
+###  改编上面的方法 使用decorator装饰器
+# class Student(object):
+
+#     @property
+#     def score(self):
+#         return self._score
+
+#     @score.setter
+#     def score(self, value):
+#         if not isinstance(value, int):
+#             raise ValueError('score must be an integer!')
+#         if value < 0 or value > 100:
+#             raise ValueError('score must between 0 ~ 100!')
+#         self._score = value
+
+# s = Student()
+# s.score = 60 # OK，实际转化为s.set_score(60)
+# print(s.score) # OK，实际转化为s.get_score()
+
+## 设置只读属性
+# class Student(object):
+
+#     @property
+#     def birth(self):
+#         return self._birth
+
+#     @birth.setter
+#     def birth(self, value):
+#         self._birth = value
+
+#     @property
+#     def age(self):
+#         return 2015 - self._birth
+
+
+#练习
+#请利用@property给一个Screen对象加上width和height属性，以及一个只读属性resolution：
+# class Screen(object):
+#     @property
+#     def width(self):
+#         return self._width
+
+#     @width.setter
+#     def width(self, value):
+#         self._width = value
+
+#     @property
+#     def height(self):
+#         return self._height
+
+#     @height.setter
+#     def height(self, value):
+#         self._height = value
+    
+#     @property
+#     def resolution(self):
+#         self._resolution = self._width * self._height
+#         return self._resolution
+
+# # 测试:
+# s = Screen()
+# s.width = 1024
+# s.height = 768
+# print('resolution =', s.resolution)
+# if s.resolution == 786432:
+#     print('测试通过!')
+# else:
+#     print('测试失败!')
+
+
+### 多重继承
+
+# 关于多重继承,其实,只要了解拓扑排序,就能很清楚的指导多重继承的查询顺序了,从入度为0的位置起,剪掉入度为0相关边,
+# 然后接着找下一个入度为0的位置,如此往复到最后,遇到有多个入度为0的时候,按最左原则取就行了,大体上就是这样了
+
+# mro,解析方法调用的顺序
+
+# class A(object):
+#     def foo(self):
+#         print('A foo')
+#     def bar(self):
+#         print('A bar')
+
+# class B(object):
+#     def foo(self):
+#         print('B foo')
+#     def bar(self):
+#         print('B bar')
+
+# class C1(A,B):
+#     pass
+
+# class C2(A,B):
+#     def bar(self):
+#         print('C2-bar')
+
+# class D(C1,C2):
+#     pass
+
+# if __name__ == '__main__':
+#     print(D.__mro__)
+#     d=D()
+#     d.foo()
+#     d.bar()
+
+
+### 定制类
+# __iter__   用于类循环
+
+# 以 斐波那契数列 为例
+# class Fib(object):
+#     def __init__(self):
+#         self.a, self.b = 0, 1 # 初始化两个计数器a，b
+
+#     def __iter__(self):
+#         return self # 实例本身就是迭代对象，故返回自己
+
+#     def __next__(self):
+#         self.a, self.b = self.b, self.a + self.b # 计算下一个值
+#         if self.a > 100000: # 退出循环的条件
+#             raise StopIteration()
+#         return self.a # 返回下一个值
+
+# # 循环斐波那契数列
+# for i in Fib():
+#         print(i)
+
+
+# __getitem__  
+# Fib实例虽然能作用于for循环，看起来和list有点像，但是，把它当成list来使用还是不行
+# 要表现得像list那样按照下标取出元素，需要实现__getitem__()方法： 
+class Fib(object):
+    def __getitem__(self, n):
+        a, b = 1, 1
+        for x in range(n):
+            a, b = b, a + b
+        return a
+#现在，就可以按下标访问数列的任意一项了
+f = Fib()
+print(f[0])
+
+
+
+###  list 切片
+
+
+
+
+
+
+
 
 
