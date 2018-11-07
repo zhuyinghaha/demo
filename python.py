@@ -1120,19 +1120,123 @@
 # __getitem__  
 # Fib实例虽然能作用于for循环，看起来和list有点像，但是，把它当成list来使用还是不行
 # 要表现得像list那样按照下标取出元素，需要实现__getitem__()方法： 
-class Fib(object):
-    def __getitem__(self, n):
-        a, b = 1, 1
-        for x in range(n):
-            a, b = b, a + b
-        return a
-#现在，就可以按下标访问数列的任意一项了
-f = Fib()
-print(f[0])
+# class Fib(object):
+#     def __getitem__(self, n):
+#         a, b = 1, 1
+#         for x in range(n):
+#             a, b = b, a + b
+#         return a
+# #现在，就可以按下标访问数列的任意一项了
+# f = Fib()
+# print(f[0])
+
+# class Fib(object):
+#     def __getitem__(self, n):
+#         if isinstance(n, int): # n是索引
+#             a, b = 1, 1
+#             for x in range(n):
+#                 a, b = b, a + b
+#             return a
+#         if isinstance(n, slice): # n是切片
+#             start = n.start
+#             stop = n.stop
+#             if start is None:
+#                 start = 0
+#             a, b = 1, 1
+#             L = []
+#             for x in range(stop):
+#                 if x >= start:
+#                     L.append(a)
+#                 a, b = b, a + b
+#             return L
+
+# f = Fib()
+# print(f[1])
+
+
+# __getattr__
+# class Student(object):
+
+#     def __init__(self):
+#         self.name = 'Michael'
+
+#     def __getattr__(self, attr):
+#         if attr=='score':
+#             return 99
+#         if attr=='age':
+#             return lambda: 25
+#         raise AttributeError('\'Student\' object has no attribute \'%s\'' % attr)
+
+# s = Student()
+# print(s.score)
+# print(s.age())
+# print(s.sss) #默认返回None
+
+
+# 现在很多网站都搞REST API，比如新浪微博、豆瓣啥的，调用API的URL类似：
+# http://api.server/user/friends
+# http://api.server/user/timeline/list
+# 如果要写SDK，给每个URL对应的API都写一个方法，那得累死，而且，API一旦改动，SDK也要改。
+# 利用完全动态的__getattr__，我们可以写出一个链式调用
+class Chain(object):
+
+    def __init__(self, path=''):
+        self._path = path
+
+    def __getattr__(self, path):
+        return Chain('%s/%s' % (self._path, path))
+
+    def __str__(self):
+        return self._path
+
+    __repr__ = __str__
+
+print(Chain().status.user.timeline.list)
+
+# 理解
+# Chain().status.user.timeline.list “敲回车键”
+# “()”和“.”和“回车键”都是从左向右的顺序运算符，类比成数学中的加和减。
+# 步骤：
+# 1、Chain是类名，对它进行“()”运算，即调用__init__(self)(这个有讲过哦),会生成一个实例c1，c1=Chain(path='')。
+# 2、对实例c1进行“.”运算，增加一个“status”属性，即调用__getattr__(self, status),返回
+# 一个新实例c2,c2=Chain(path='/status')。
+# 3、对实例c2进行“.”运算，增加一个“user”属性，即调用__getattr__(self, user),返回
+# 一个新实例c3,c3=Chain(path='/status/user')。
+# 4、对实例c3进行“.”运算，增加一个“timeline”属性，即调用__getattr__(self, timeline),返回
+# 一个新实例c4,c4=Chain(path='/status/user/timeline')。
+# 5、对实例c4进行“.”运算，增加一个“list”属性，即调用__getattr__(self, list),返回
+# 一个新实例c5,c5=Chain(path='/status/user/timeline/list')。
+# 6、对实例c5进行“回车键”运算，即调用__repr__(self)，返回c5._path,即输出'/status/user/timeline/list'。
+
+# 这样再来看思考题：Chain().users('michael').repos就很清晰了。
+# Chain--“()”(即调用__init__)——>c1——“.users”(即调用__getattr__)——>c2——“('michael')”(即调用__call__)——>c3——“.repos”(即调用__getattr__)——>c4——“回车键”(即调用__repr__)——>'/users/michael/repos'。
+# 那么类该怎么写，就不用多说了吧。只比老师的示例多加一个__call__方法：
+
+# def __call__(self, param):
+#         return Chain('%s/%s' % (self._path, param))
 
 
 
-###  list 切片
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
